@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#0099CC</color>
-    <color name="white">#FFBB33</color>
-    <integer name="qr_dim">800</integer>
+    <color name="qrForegroundColor">#0099CC</color>
+    <color name="qrBackgroundColor">#FFF</color>
+    <integer name="qrDimension">800</integer>
 </resources>

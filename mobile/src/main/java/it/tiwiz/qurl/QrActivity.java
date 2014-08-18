@@ -2,15 +2,12 @@ package it.tiwiz.qurl;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
 import it.tiwiz.qurl.qr.QrCode;
-import it.tiwiz.qurl.utils.Lg;
 import it.tiwiz.qurl.utils.Web;
 
 
@@ -36,14 +33,13 @@ public class QrActivity extends Activity {
         setContentView(R.layout.activity_qr);
         imageViewQrCode = (ImageView) findViewById(R.id.qr_imageview);
 
-        //final String url = Web.getURLFromIntent(getIntent());
-        final String url = "http://www.google.it";
+        final String url = Web.getURLFromIntent(getIntent());
         //final int BLACK_COLOR = Color.parseColor("#0099CC");
         //final int WHITE_COLOR = Color.parseColor("#FFBB33");
         //final int QR_DIMENSION = 800;
         //final String[] params = QrCode.buildParameters(url, BLACK_COLOR, WHITE_COLOR, QR_DIMENSION);
 
-        final String[] params = QrCode.buildParameters(this, url, R.color.black, R.color.white, R.integer.qr_dim);
+        final String[] params = QrCode.buildParameters(this, url, R.color.qrForegroundColor, R.color.qrBackgroundColor, R.integer.qrDimension);
         if ((url != null) && (url.length() > 0)) {
             new QrCode(simpleCallback).execute(params);
         }
