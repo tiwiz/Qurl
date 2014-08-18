@@ -11,6 +11,8 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
+import java.lang.ref.WeakReference;
+
 /**
  * This class will allow you to asynchronously create a QR Code using two different callbacks in case of
  * success or failure.
@@ -35,7 +37,7 @@ public class QrCode extends AsyncTask<String, Void, Bitmap> {
 
     ;
 
-    private ImageCallback mCallback;
+    private WeakReference<ImageCallback> imageCallbackWeakReference;
     private FailureCode mFailureCode;
 
     /**
@@ -125,7 +127,7 @@ public class QrCode extends AsyncTask<String, Void, Bitmap> {
      * @param callback {@link it.tiwiz.qurl.qr.QrCode.ImageCallback} that will be executed for this QR Code
      */
     public QrCode(ImageCallback callback) {
-        mCallback = callback;
+        imageCallbackWeakReference = new WeakReference<ImageCallback>(callback);
     }
 
     @Override
@@ -140,48 +142,29 @@ public class QrCode extends AsyncTask<String, Void, Bitmap> {
             final int foregroundColor = Color.parseColor(params[FOREGROUND_COLOR_POSITION]);
             final int backgroundColor = Color.parseColor(params[BACKGROUND_COLOR_POSITION]);
             final int qrCodeDimension = Integer.parseInt(params[QR_CODE_DIMENSION_POSITION]);
-            return generateQrCode(url, foregroundColor, backgroundColor, qrCodeDimension);
+            final Bitmap resultBitmap = Generator.generateQrCode(url, foregroundColor, backgroundColor, qrCodeDimension);
+            if (resultBitmap == null) {
+                mFailureCode = FailureCode.QR_CODE_EXCEPTION;
+            }
+            return resultBitmap;
         } catch (NumberFormatException e) {
             mFailureCode = FailureCode.NUMBER_FORMAT_EXCEPTION;
             return null;
         }
     }
 
-    private Bitmap generateQrCode(String url, int foregroundColor, int backgroundColor, int qrCodeDimension) {
-        QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        try {
-            final BitMatrix bitMatrix = qrCodeWriter.encode(url, BarcodeFormat.QR_CODE, qrCodeDimension, qrCodeDimension);
-            final int matrixHeight = bitMatrix.getHeight();
-            final int matrixWidth = bitMatrix.getWidth();
-            int[] pixels = new int[matrixWidth * matrixHeight];
-            int offset;
-            for (int y = 0; y < matrixHeight; y++) {
-                offset = y * matrixWidth;
-                for (int x = 0; x < matrixWidth; x++) {
-                    pixels[offset + x] = bitMatrix.get(x, y) ? foregroundColor : backgroundColor;
-                }
-            }
-            Bitmap resultQrBitmap = Bitmap.createBitmap(matrixWidth, matrixHeight, Bitmap.Config.ARGB_8888);
-            resultQrBitmap.setPixels(pixels, 0, matrixWidth, 0, 0, matrixWidth, matrixHeight);
-            return resultQrBitmap;
-        } catch (WriterException e) {
-            mFailureCode = FailureCode.QR_CODE_EXCEPTION;
-            return null;
-        }
-    }
-
     @Override
     protected void onPostExecute(Bitmap bitmap) {
-        if ((bitmap != null) && (mCallback != null)) {
-            mCallback.onSuccess(bitmap);
+        if (bitmap != null) {
+            imageCallbackWeakReference.get().onSuccess(bitmap);
         } else {
-            mCallback.onFailure(mFailureCode);
+            imageCallbackWeakReference.get().onFailure(mFailureCode);
         }
     }
 
     @Override
     protected void onCancelled() {
         mFailureCode = FailureCode.TASK_INTERRUPTED;
-        mCallback.onFailure(mFailureCode);
+        imageCallbackWeakReference.get().onFailure(mFailureCode);
     }
 }
