@@ -20,8 +20,13 @@ public class QrActivity extends Activity {
 
     private QrCode.ImageCallback simpleCallback = new QrCode.ImageCallback() {
         @Override
-        public void run (Bitmap result) {
+        public void onSuccess (Bitmap result) {
             imageViewQrCode.setImageBitmap(result);
+        }
+
+        @Override
+        public void onFailure (QrCode.FailureCode failureCode) {
+
         }
     };
 
@@ -33,11 +38,12 @@ public class QrActivity extends Activity {
 
         //final String url = Web.getURLFromIntent(getIntent());
         final String url = "http://www.google.it";
-        final int BLACK_COLOR = Color.parseColor("#0099CC");
-        final int WHITE_COLOR = Color.parseColor("#FFBB33");
-        final int QR_DIMENSION = 800;
-        final String[] params = QrCode.buildParameters(url, BLACK_COLOR, WHITE_COLOR, QR_DIMENSION);
+        //final int BLACK_COLOR = Color.parseColor("#0099CC");
+        //final int WHITE_COLOR = Color.parseColor("#FFBB33");
+        //final int QR_DIMENSION = 800;
+        //final String[] params = QrCode.buildParameters(url, BLACK_COLOR, WHITE_COLOR, QR_DIMENSION);
 
+        final String[] params = QrCode.buildParameters(this, url, R.color.black, R.color.white, R.integer.qr_dim);
         if ((url != null) && (url.length() > 0)) {
             new QrCode(simpleCallback).execute(params);
         }
