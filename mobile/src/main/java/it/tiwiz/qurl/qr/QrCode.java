@@ -1,15 +1,9 @@
 package it.tiwiz.qurl.qr;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.lang.ref.WeakReference;
 
@@ -19,7 +13,7 @@ import java.lang.ref.WeakReference;
  * <p/>
  * This code relies on ZXing library, that must be imported in the project.
  */
-public class QrCode extends AsyncTask<String, Void, Bitmap> {
+public class QrCode extends AsyncTask<String, Void, QrCode.Result> {
     private final static int URL_POSITION = 0;
     private final static int FOREGROUND_COLOR_POSITION = 1;
     private final static int BACKGROUND_COLOR_POSITION = 2;
@@ -28,17 +22,33 @@ public class QrCode extends AsyncTask<String, Void, Bitmap> {
     private final static String DEFAULT_BACKGROUND_COLOR = "#FFFFFF"; //white
     private final static String DEFAULT_QR_DIMENSION = "800";
 
-    public enum FailureCode {
+    public enum ResponseCode {
+        SUCCESS,
         WRONG_PARAMETERS,
         NUMBER_FORMAT_EXCEPTION,
         QR_CODE_EXCEPTION,
         TASK_INTERRUPTED
     }
 
-    ;
+    public static class Result {
+        private Bitmap mBitmap;
+        private ResponseCode mResponseCode;
 
-    private WeakReference<ImageCallback> imageCallbackWeakReference;
-    private FailureCode mFailureCode;
+        public Result(Bitmap bitmap, ResponseCode responseCode) {
+            mBitmap = bitmap;
+            mResponseCode = responseCode;
+        }
+
+        public Bitmap getBitmap() {
+            return mBitmap;
+        }
+
+        public ResponseCode getResponseCode() {
+            return mResponseCode;
+        }
+    }
+
+    private WeakReference<ImageCallback> imageCallback;
 
     /**
      * This Interface, similar to {@link java.lang.Runnable}, will take care of
@@ -55,9 +65,9 @@ public class QrCode extends AsyncTask<String, Void, Bitmap> {
         /**
          * This method will be run on main thread as soon as QR Code generation fails.
          *
-         * @param failureCode a {@link it.tiwiz.qurl.qr.QrCode.FailureCode} telling what happened during the execution of the task
+         * @param responseCode a {@link it.tiwiz.qurl.qr.QrCode.ResponseCode} telling what happened during the execution of the task
          */
-        public void onFailure(FailureCode failureCode);
+        public void onFailure(ResponseCode responseCode);
     }
 
     /**
@@ -127,14 +137,13 @@ public class QrCode extends AsyncTask<String, Void, Bitmap> {
      * @param callback {@link it.tiwiz.qurl.qr.QrCode.ImageCallback} that will be executed for this QR Code
      */
     public QrCode(ImageCallback callback) {
-        imageCallbackWeakReference = new WeakReference<ImageCallback>(callback);
+        imageCallback = new WeakReference<ImageCallback>(callback);
     }
 
     @Override
-    protected Bitmap doInBackground(String... params) {
-        if ((params == null) || (params.length != 4)) {
-            mFailureCode = FailureCode.WRONG_PARAMETERS;
-            return null;
+    protected Result doInBackground(String... params) {
+        if (params == null || (params.length != 4)) {
+            return new Result(null, ResponseCode.WRONG_PARAMETERS);
         }
 
         final String url = params[URL_POSITION];
@@ -143,28 +152,30 @@ public class QrCode extends AsyncTask<String, Void, Bitmap> {
             final int backgroundColor = Color.parseColor(params[BACKGROUND_COLOR_POSITION]);
             final int qrCodeDimension = Integer.parseInt(params[QR_CODE_DIMENSION_POSITION]);
             final Bitmap resultBitmap = Generator.generateQrCode(url, foregroundColor, backgroundColor, qrCodeDimension);
-            if (resultBitmap == null) {
-                mFailureCode = FailureCode.QR_CODE_EXCEPTION;
-            }
-            return resultBitmap;
+            ResponseCode resultCode = (resultBitmap == null) ? ResponseCode.QR_CODE_EXCEPTION : ResponseCode.SUCCESS;
+            return new Result(resultBitmap, resultCode);
         } catch (NumberFormatException e) {
-            mFailureCode = FailureCode.NUMBER_FORMAT_EXCEPTION;
-            return null;
+            return new Result(null, ResponseCode.NUMBER_FORMAT_EXCEPTION);
         }
     }
 
     @Override
-    protected void onPostExecute(Bitmap bitmap) {
-        if (bitmap != null) {
-            imageCallbackWeakReference.get().onSuccess(bitmap);
+    protected void onPostExecute(Result result) {
+        if (result.getResponseCode() == ResponseCode.SUCCESS) {
+            if (imageCallback.get() != null) {
+                imageCallback.get().onSuccess(result.getBitmap());
+            }
         } else {
-            imageCallbackWeakReference.get().onFailure(mFailureCode);
+            if (imageCallback.get() != null) {
+                imageCallback.get().onFailure(result.getResponseCode());
+            }
         }
     }
 
     @Override
     protected void onCancelled() {
-        mFailureCode = FailureCode.TASK_INTERRUPTED;
-        imageCallbackWeakReference.get().onFailure(mFailureCode);
+        if (imageCallback.get() != null) {
+            imageCallback.get().onFailure(ResponseCode.TASK_INTERRUPTED);
+        }
     }
 }

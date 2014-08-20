@@ -22,7 +22,7 @@ public class QrActivity extends Activity {
         }
 
         @Override
-        public void onFailure (QrCode.FailureCode failureCode) {
+        public void onFailure (QrCode.ResponseCode responseCode) {
 
         }
     };
