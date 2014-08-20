@@ -16,7 +16,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
  * in order to have the QR Code generated.
  * <p/>
  * For Gradle/Android environment is enough to declare
- * compile 'com.google.zxing:core:3.0.1'
+ * {@code compile 'com.google.zxing:core:3.0.1'}
  * in the <i>dependencies</i> section of the build.gradle file
  */
 public class Generator {

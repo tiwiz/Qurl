@@ -13,14 +13,14 @@ import java.lang.ref.WeakReference;
  * <p/>
  * This code relies on ZXing library, that must be imported in the project.
  */
-public class QrCode extends AsyncTask<String, Void, QrCode.Result> {
+public class QrCodeAsync extends AsyncTask<String, Void, QrCodeAsync.Result> {
     private final static int URL_POSITION = 0;
     private final static int FOREGROUND_COLOR_POSITION = 1;
     private final static int BACKGROUND_COLOR_POSITION = 2;
     private final static int QR_CODE_DIMENSION_POSITION = 3;
-    private final static String DEFAULT_FOREGROUND_COLOR = "#000000"; //black
-    private final static String DEFAULT_BACKGROUND_COLOR = "#FFFFFF"; //white
-    private final static String DEFAULT_QR_DIMENSION = "800";
+    private final static String DEFAULT_FOREGROUND_COLOR = "#000000";
+    private final static String DEFAULT_BACKGROUND_COLOR = "#FFFFFF";
+    private final static String DEFAULT_QR_SIZE_PX = "800";
 
     public enum ResponseCode {
         SUCCESS,
@@ -34,8 +34,13 @@ public class QrCode extends AsyncTask<String, Void, QrCode.Result> {
         private Bitmap mBitmap;
         private ResponseCode mResponseCode;
 
-        public Result(Bitmap bitmap, ResponseCode responseCode) {
+        public Result(Bitmap bitmap) {
             mBitmap = bitmap;
+            mResponseCode = ResponseCode.SUCCESS;
+        }
+
+        public Result(ResponseCode responseCode) {
+            mBitmap = null;
             mResponseCode = responseCode;
         }
 
@@ -65,7 +70,7 @@ public class QrCode extends AsyncTask<String, Void, QrCode.Result> {
         /**
          * This method will be run on main thread as soon as QR Code generation fails.
          *
-         * @param responseCode a {@link it.tiwiz.qurl.qr.QrCode.ResponseCode} telling what happened during the execution of the task
+         * @param responseCode a {@link QrCodeAsync.ResponseCode} telling what happened during the execution of the task
          */
         public void onFailure(ResponseCode responseCode);
     }
@@ -127,23 +132,23 @@ public class QrCode extends AsyncTask<String, Void, QrCode.Result> {
      * @return a {@link java.lang.String} vector that can be passed to the {@link #execute(Object[])} method containing the default configuration for the QR Code
      */
     public static String[] getDefaultParameters(String url) {
-        return buildParameters(url, DEFAULT_FOREGROUND_COLOR, DEFAULT_BACKGROUND_COLOR, DEFAULT_QR_DIMENSION);
+        return buildParameters(url, DEFAULT_FOREGROUND_COLOR, DEFAULT_BACKGROUND_COLOR, DEFAULT_QR_SIZE_PX);
     }
 
     /**
      * Builds the structure of the QR Code. No loading indicator will be shown.
      * for setting a message and display the loading screen
      *
-     * @param callback {@link it.tiwiz.qurl.qr.QrCode.ImageCallback} that will be executed for this QR Code
+     * @param callback {@link QrCodeAsync.ImageCallback} that will be executed for this QR Code
      */
-    public QrCode(ImageCallback callback) {
+    public QrCodeAsync(ImageCallback callback) {
         imageCallback = new WeakReference<ImageCallback>(callback);
     }
 
     @Override
     protected Result doInBackground(String... params) {
-        if (params == null || (params.length != 4)) {
-            return new Result(null, ResponseCode.WRONG_PARAMETERS);
+        if (params == null || params.length != 4) {
+            return new Result(ResponseCode.WRONG_PARAMETERS);
         }
 
         final String url = params[URL_POSITION];
@@ -152,30 +157,39 @@ public class QrCode extends AsyncTask<String, Void, QrCode.Result> {
             final int backgroundColor = Color.parseColor(params[BACKGROUND_COLOR_POSITION]);
             final int qrCodeDimension = Integer.parseInt(params[QR_CODE_DIMENSION_POSITION]);
             final Bitmap resultBitmap = Generator.generateQrCode(url, foregroundColor, backgroundColor, qrCodeDimension);
-            ResponseCode resultCode = (resultBitmap == null) ? ResponseCode.QR_CODE_EXCEPTION : ResponseCode.SUCCESS;
-            return new Result(resultBitmap, resultCode);
+            Result result;
+            if (resultBitmap == null) {
+                result = new Result(ResponseCode.QR_CODE_EXCEPTION);
+            } else {
+               result = new Result(resultBitmap);
+            }
+            return result;
         } catch (NumberFormatException e) {
-            return new Result(null, ResponseCode.NUMBER_FORMAT_EXCEPTION);
+            return new Result(ResponseCode.NUMBER_FORMAT_EXCEPTION);
         }
     }
 
     @Override
     protected void onPostExecute(Result result) {
+        ImageCallback callback = imageCallback.get();
+
         if (result.getResponseCode() == ResponseCode.SUCCESS) {
-            if (imageCallback.get() != null) {
-                imageCallback.get().onSuccess(result.getBitmap());
+            if (callback != null) {
+                callback.onSuccess(result.getBitmap());
             }
         } else {
-            if (imageCallback.get() != null) {
-                imageCallback.get().onFailure(result.getResponseCode());
+            if (callback != null) {
+                callback.onFailure(result.getResponseCode());
             }
         }
     }
 
     @Override
     protected void onCancelled() {
-        if (imageCallback.get() != null) {
-            imageCallback.get().onFailure(ResponseCode.TASK_INTERRUPTED);
+        ImageCallback callback = imageCallback.get();
+
+        if (callback != null) {
+            callback.onFailure(ResponseCode.TASK_INTERRUPTED);
         }
     }
 }

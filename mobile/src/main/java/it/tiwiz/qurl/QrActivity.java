@@ -7,7 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
-import it.tiwiz.qurl.qr.QrCode;
+import it.tiwiz.qurl.qr.QrCodeAsync;
 import it.tiwiz.qurl.utils.Web;
 
 
@@ -15,14 +15,14 @@ public class QrActivity extends Activity {
 
     private ImageView imageViewQrCode;
 
-    private QrCode.ImageCallback simpleCallback = new QrCode.ImageCallback() {
+    private QrCodeAsync.ImageCallback simpleCallback = new QrCodeAsync.ImageCallback() {
         @Override
         public void onSuccess (Bitmap result) {
             imageViewQrCode.setImageBitmap(result);
         }
 
         @Override
-        public void onFailure (QrCode.ResponseCode responseCode) {
+        public void onFailure (QrCodeAsync.ResponseCode responseCode) {
 
         }
     };
@@ -39,9 +39,9 @@ public class QrActivity extends Activity {
         //final int QR_DIMENSION = 800;
         //final String[] params = QrCode.buildParameters(url, BLACK_COLOR, WHITE_COLOR, QR_DIMENSION);
 
-        final String[] params = QrCode.buildParameters(this, url, R.color.qrForegroundColor, R.color.qrBackgroundColor, R.integer.qrDimension);
+        final String[] params = QrCodeAsync.buildParameters(this, url, R.color.qrForegroundColor, R.color.qrBackgroundColor, R.integer.qrDimension);
         if ((url != null) && (url.length() > 0)) {
-            new QrCode(simpleCallback).execute(params);
+            new QrCodeAsync(simpleCallback).execute(params);
         }
 
     }
