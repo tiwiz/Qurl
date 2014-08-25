@@ -24,4 +24,5 @@ dependencies {
     wearApp project(':wear')
     compile 'com.google.android.gms:play-services-wearable:+'
     compile 'com.google.zxing:core:3.0.1'
+    compile project(':common')
 }

@@ -4,5 +4,29 @@
     <string name="app_name">Qurl</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_qr_list">QrListActivity</string>
+    <string name="qr_activity_send_to_wear">Send to Wear</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="pref_storage_cache">pref_key_storage_enable_cache</string>
+    <string name="pref_foreground_color_title">Foreground</string>
+    <string name="pref_color_title">Colors</string>
+    <string name="pref_foreground_color_summary">Color used as accent of the QR Code</string>
+    <string name="pref_background_color_title">Background</string>
+    <string name="pref_background_color_summary">Background color for the generated QR Code</string>
+    <string name="pref_wear_title">Android Wear</string>
+    <string name="pref_wear_support_title">Support</string>
+    <string name="pref_wear_support_summary">Share QR Code with Wear device</string>
+    <string name="pref_wear_support_default_value">true</string>
+    <string name="pref_wear_auto_send_title">Automation</string>
+    <string name="pref_wear_auto_send_summary">Send the QR Code automatically to the Wear device</string>
+    <string name="pref_wear_auto_send_default_value">true</string>
+    <string name="pref_storage_title">Storage</string>
+    <string name="pref_storage_cache_title">Cache</string>
+    <string name="pref_storage_cache_summary">Save generated QR Code on memory</string>
+    <string name="pref_storage_clear_cache_title">Clear cache</string>
+    <string name="wear_not_connected_toast_message">Wear is not connected</string>
+    <string name="pref_wear_notification_title">Notification</string>
+    <string name="pref_wear_notification_summary">Dismiss notification when app opens</string>
+    <string name="pref_wear_notification_default_value">false</string>
 
 </resources>

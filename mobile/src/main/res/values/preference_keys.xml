@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_colors">pref_key_colors</string>
+    <string name="pref_wear">pref_key_wear_support</string>
+    <string name="pref_wear_enable">pref_key_wear_support_enable</string>
+    <string name="pref_wear_auto_send">pref_key_wear_support_auto_send</string>
+    <string name="pref_storage">pref_key_storage</string>
+    <string name="pref_wear_notification">pref_key_wear_dismiss_notification</string>
+</resources>

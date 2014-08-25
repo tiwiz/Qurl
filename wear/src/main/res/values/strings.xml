@@ -4,5 +4,8 @@
     <string name="app_name">Qurl</string>
     <string name="hello_round">Hello Round World!</string>
     <string name="hello_square">Hello Square World!</string>
+    <string name="notification_message">A new QR Code has been received</string>
+    <string name="notification_action_open">Open</string>
+    <string name="invalid_qr_code_toast_message">An invalid QR Code has been provided</string>
 
 </resources>

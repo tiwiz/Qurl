@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="@string/pref_colors"
+        android:title="@string/pref_color_title">
+        <Preference
+            android:title="@string/pref_foreground_color_title"
+            android:summary="@string/pref_foreground_color_summary" />
+        <Preference
+            android:title="@string/pref_background_color_title"
+            android:summary="@string/pref_background_color_summary" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/pref_wear"
+        android:title="@string/pref_wear_title">
+        <SwitchPreference
+            android:key="@string/pref_wear_enable"
+            android:title="@string/pref_wear_support_title"
+            android:summary="@string/pref_wear_support_summary"
+            android:defaultValue="@string/pref_wear_support_default_value" />
+        <SwitchPreference
+            android:key="@string/pref_wear_auto_send"
+            android:title="@string/pref_wear_auto_send_title"
+            android:summary="@string/pref_wear_auto_send_summary"
+            android:dependency="@string/pref_wear_enable"
+            android:defaultValue="@string/pref_wear_auto_send_default_value" />
+        <SwitchPreference
+            android:key="@string/pref_wear_notification"
+            android:title="@string/pref_wear_notification_title"
+            android:summary="@string/pref_wear_notification_summary"
+            android:dependency="@string/pref_wear_enable"
+            android:defaultValue="@string/pref_wear_notification_default_value"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/pref_storage"
+        android:title="@string/pref_storage_title">
+        <SwitchPreference
+            android:key="@string/pref_storage_cache"
+            android:title="@string/pref_storage_cache_title"
+            android:summary="@string/pref_storage_cache_summary"
+            android:defaultValue="false" />
+        <Preference
+            android:title="@string/pref_storage_clear_cache_title"
+            android:dependency="@string/pref_storage_cache" />
+    </PreferenceCategory>
+</PreferenceScreen>
